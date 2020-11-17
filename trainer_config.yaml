@@ -1,0 +1,20 @@
+behaviors:
+    TankBehaviour:
+        trainer_type: ppo
+        hyperparameters:
+            num_epoch: 3
+            batch_size: 2024
+            buffer_size: 20240
+        network_settings:
+            num_layers: 3
+            hidden_units: 128
+            normalize: true
+
+        reward_signals:
+            extrinsic:
+                strength: 1.0
+                gamma: 0.995
+        max_steps: 50e6
+        time_horizon: 1000
+        summary_freq: 5000
+        
