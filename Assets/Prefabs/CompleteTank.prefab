@@ -10516,7 +10516,7 @@ MonoBehaviour:
   fireTransform: {fileID: 435794}
   shootingAudio: {fileID: 8268710}
   fireClip: {fileID: 8300000, guid: 672a9941361ad494a99fba36759eca80, type: 3}
-  launchForce: 20
+  launchForce: 18
 --- !u!114 &847041366786716659
 MonoBehaviour:
   m_ObjectHideFlags: 0

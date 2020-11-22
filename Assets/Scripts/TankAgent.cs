@@ -12,9 +12,6 @@ public class TankAgent : Agent
     private TankShooting _tankShooting;
 
     private SpawnPointProvider[] _spawnPointProviders;
-
-    private float _horizontalInputVelocity;
-    private float _verticalInputVelocity;
     
     private void Awake()
     {
@@ -77,23 +74,13 @@ public class TankAgent : Agent
             return;
         }
         
-        var horizontalInput = Mathf.Clamp(vectorAction[0], -1f, 1f);
-        var verticalInput = Mathf.Clamp(vectorAction[1], -1f, 1f);
-        
-        _tankInput.HorizontalInput = Mathf.SmoothDamp(_tankInput.HorizontalInput, horizontalInput,
-            ref _horizontalInputVelocity, 0.05f);
-        
-        _tankInput.VerticalInput = Mathf.SmoothDamp(_tankInput.VerticalInput, verticalInput,
-            ref _verticalInputVelocity, 0.05f);
-        
+        _tankInput.HorizontalInput = Mathf.Clamp(vectorAction[0], -1f, 1f);
+        _tankInput.VerticalInput = Mathf.Clamp(vectorAction[1], -1f, 1f);
         _tankInput.FireInput = vectorAction[2] >= 1f;
     }
 
     private void OnTankDead()
     {
-        _verticalInputVelocity = 0f;
-        _horizontalInputVelocity = 0f;
-        
         _tankInput.ResetAllInputs();
         SetActiveTankComponents(false);
         EndEpisode();
@@ -130,9 +117,6 @@ public class TankAgent : Agent
 
     public override void OnEpisodeBegin()
     {
-        _verticalInputVelocity = 0f;
-        _horizontalInputVelocity = 0f;
-        
         var spawnPointProvider = _spawnPointProviders[Random.Range(0, _spawnPointProviders.Length)];
         var spawnPosition = spawnPointProvider.GetRandomSpawnPoint(3f);
 

@@ -11,7 +11,7 @@ namespace Tank
         public AudioSource shootingAudio;
         public AudioClip fireClip;
         
-        public float launchForce = 20f;
+        public float launchForce = 18f;
         private TankInput _tankInput;
         public event Action<TankHitInfo[]> OnHitTargets;
         
