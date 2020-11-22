@@ -1,3 +1,4 @@
+using System.Linq;
 using Cinemachine;
 using Unity.MLAgents;
 using UnityEngine;
@@ -5,31 +6,30 @@ using UnityEngine;
 public class SwitchCameraTarget : MonoBehaviour
 {
     private Agent[] _agents;
-
     public CinemachineVirtualCamera virtualCamera;
 
-    private float timeBetChange = 5f;
+    private const float TimeBetChange = 3f;
+    private float _lastChangeTime;
 
-    private float lastChangeTime;
     private void Start()
     {
-        _agents = FindObjectsOfType<Agent>();
-
-        virtualCamera.LookAt = _agents[0].transform;
-
         if (Academy.Instance.IsCommunicatorOn)
         {
-            // 전체 보기 카메라로 세팅
+            return;
         }
+        
+        _agents = FindObjectsOfType<Agent>();
+        virtualCamera.LookAt = _agents[0].transform;
     }
 
     private void Update()
     {
-        if (Time.unscaledTime >= lastChangeTime + timeBetChange)
+        if (Time.time >= _lastChangeTime + TimeBetChange)
         {
-            lastChangeTime = Time.unscaledTime + timeBetChange;
+            _lastChangeTime = Time.time + TimeBetChange;
             
-            virtualCamera.LookAt = _agents[Random.Range(0, _agents.Length)].transform;
+            var agentWithMaxReward = _agents.Aggregate((agent1, agent2) => agent1.GetCumulativeReward() > agent2.GetCumulativeReward() ? agent1 : agent2);
+            virtualCamera.LookAt = agentWithMaxReward.transform;
         }
     }
 }
