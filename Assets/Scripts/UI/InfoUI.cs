@@ -17,10 +17,12 @@ public class InfoUI : MonoBehaviour
     private void Update()
     {
         var stringBuilder = new StringBuilder();
+        stringBuilder.AppendLine("Agent Stats");
+
         foreach (var agent in _agents)
         {
             var reward = agent.GetCumulativeReward();
-            stringBuilder.AppendLine($"{agent.gameObject.name} : {reward}");
+            stringBuilder.AppendLine($"* {agent.gameObject.name} : {reward}");
         }
 
         text.text = stringBuilder.ToString();

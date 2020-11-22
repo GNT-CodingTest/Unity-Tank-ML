@@ -1,4 +1,3 @@
-using Tank;
 using UnityEngine;
 
 public class FuelItem : Item

@@ -2,20 +2,20 @@
 
 public class UIDirectionControl : MonoBehaviour
 {
-    public bool m_UseRelativeRotation = true;
-    private Quaternion m_RelativeRotation;
+    public bool useRelativeRotation = true;
+    private Quaternion _relativeRotation;
 
     private void Start()
     {
-        m_RelativeRotation = transform.parent.localRotation;
+        _relativeRotation = transform.parent.localRotation;
     }
 
 
     private void Update()
     {
-        if (m_UseRelativeRotation)
+        if (useRelativeRotation)
         {
-            transform.rotation = m_RelativeRotation;
+            transform.rotation = _relativeRotation;
         }
     }
 }

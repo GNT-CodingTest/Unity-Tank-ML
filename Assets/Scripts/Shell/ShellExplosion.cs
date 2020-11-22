@@ -4,15 +4,12 @@ using UnityEngine;
 
 public class ShellExplosion : MonoBehaviour
 {
-    public LayerMask m_TankMask; // Used to filter what the explosion affects, this should be set to "Players".
-    public ParticleSystem m_ExplosionParticles; // Reference to the particles that will play on explosion.
-    public AudioSource m_ExplosionAudio; // Reference to the audio that will play on explosion.
-    public float m_MaxDamage = 100f; // The amount of damage done if the explosion is centred on a tank.
-    public float m_ExplosionForce = 1000f; // The amount of force added to a tank at the centre of the explosion.
-
-    public float
-        explosionRadius = 5f; // The maximum distance away from the explosion tanks can be and are still affected.
-
+    public LayerMask tankMask;
+    public ParticleSystem explosionParticles;
+    public AudioSource explosionAudio;
+    public float maxDamage = 100f;
+    public float explosionForce = 1000f;
+    public float explosionRadius = 5f;
     public event Action<TankHitInfo[]> OnHitTargets = info => { };
 
     public float maxLifeTime = 2f;
@@ -26,7 +23,7 @@ public class ShellExplosion : MonoBehaviour
     {
         var hitInfos = new List<TankHitInfo>();
 
-        var hitColliders = Physics.OverlapSphere(transform.position, explosionRadius, m_TankMask);
+        var hitColliders = Physics.OverlapSphere(transform.position, explosionRadius, tankMask);
 
         foreach (var hitCollider in hitColliders)
         {
@@ -36,7 +33,7 @@ public class ShellExplosion : MonoBehaviour
                 continue;
             }
 
-            targetRigidbody.AddExplosionForce(m_ExplosionForce, transform.position, explosionRadius);
+            targetRigidbody.AddExplosionForce(explosionForce, transform.position, explosionRadius);
 
             var tankHealth = hitCollider.GetComponent<TankHealth>();
 
@@ -60,12 +57,12 @@ public class ShellExplosion : MonoBehaviour
 
         OnHitTargets(hitInfos.ToArray());
 
-        m_ExplosionParticles.transform.parent = null;
-        m_ExplosionParticles.Play();
-        m_ExplosionAudio.Play();
+        explosionParticles.transform.parent = null;
+        explosionParticles.Play();
+        explosionAudio.Play();
 
-        var mainModule = m_ExplosionParticles.main;
-        Destroy(m_ExplosionParticles.gameObject, mainModule.duration);
+        var mainModule = explosionParticles.main;
+        Destroy(explosionParticles.gameObject, mainModule.duration);
         Destroy(gameObject);
     }
 
@@ -78,7 +75,7 @@ public class ShellExplosion : MonoBehaviour
 
         var relativeDistance = (explosionRadius - explosionDistance) / explosionRadius;
 
-        var damage = relativeDistance * m_MaxDamage;
+        var damage = relativeDistance * maxDamage;
 
         damage = Mathf.Max(0f, damage);
 
