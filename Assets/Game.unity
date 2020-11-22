@@ -1909,13 +1909,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 78957296c01d4604a8cb533639548257, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxItemCount: 10
+  maxItemCount: 25
   itemLifeTime: 10
   itemPrefabs:
   - {fileID: -5587605583070412292, guid: 78315c1c5a5854ce2bdbebf47db728ee, type: 3}
+  - {fileID: -2798018510067879266, guid: 03461f69b654c42ad96f5be2b91d769a, type: 3}
   - {fileID: 4569066598513795206, guid: a5e2a5f083e51415ead3b37324af2da5, type: 3}
   timeBetSpawnMin: 1
-  timeBetSpawnMax: 5
+  timeBetSpawnMax: 3
   spawnOffset: {x: 0, y: 0.5, z: 0}
 --- !u!4 &2009898472
 Transform:

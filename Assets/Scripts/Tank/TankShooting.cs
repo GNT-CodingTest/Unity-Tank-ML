@@ -1,29 +1,20 @@
 ﻿using System;
-using System.Collections.Generic;
-using Complete;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 namespace Tank
 {
     public class TankShooting : MonoBehaviour
     {
-        [FormerlySerializedAs("m_Shell")] public Rigidbody shell; // Prefab of the shell.
-
-        [FormerlySerializedAs("m_FireTransform")]
-        public Transform fireTransform; // A child of the tank where the shells are spawned.
-
-        [FormerlySerializedAs("m_ShootingAudio")]
-        public AudioSource
-            shootingAudio; // Reference to the audio source used to play the shooting audio. NB: different to the movement audio source.
-
-        [FormerlySerializedAs("m_FireClip")] public AudioClip fireClip; // Audio that plays when each shot is fired.
-
-        [FormerlySerializedAs("_launchForce")]
-        public float launchForce = 20f; // The force given to the shell if the fire button is not held.
+        public Rigidbody shell;
+        public Transform fireTransform;
         
+        public AudioSource shootingAudio;
+        public AudioClip fireClip;
+        
+        public float launchForce = 20f;
         private TankInput _tankInput;
         public event Action<TankHitInfo[]> OnHitTargets;
+        
         public float LastFireTime { get; private set; }
         public readonly float TimeBetFire = 2f;
         

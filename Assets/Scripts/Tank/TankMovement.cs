@@ -6,8 +6,8 @@ namespace Tank
     public class TankMovement : MonoBehaviour
     {
         public float Fuel { get; private set; }
-        public float speed = 12f;                 // How fast the tank moves forward and back.
-        public float turnSpeed = 180f;            // How fast the tank turns in degrees per second.
+        public float speed = 12f;
+        public float turnSpeed = 180f;
 
         private Rigidbody _rigidbody;              // Reference used to move the tank.
         private ParticleSystem[] _particleSystems; // References to all the particles systems used by the Tanks
@@ -15,10 +15,14 @@ namespace Tank
 
         public Slider fuelSlider;
 
-        private Vector3 _velocityChange;
-        private float _angleChange;
-        private const float SmoothTime = 0.05f;
+        public AudioSource movementAudio;         // Reference to the audio source used to play engine sounds. NB: different to the shooting audio source.
+        public AudioClip engineIdling;            // Audio to play when the tank isn't moving.
+        public AudioClip engineDriving;           // Audio to play when the tank is moving.
+        public float pitchRange = 0.2f;           // The amount by which the pitch of the engine noises can vary.
 
+        private float originalPitch;
+        
+        
         private void Awake ()
         {
             _tankInput = GetComponent<TankInput>();
@@ -26,18 +30,43 @@ namespace Tank
             _particleSystems = GetComponentsInChildren<ParticleSystem>();
         }
 
+        private void Start()
+        {
+            originalPitch = movementAudio.pitch;
+        }
+
         public void AddFuel(float amount)
         {
             Fuel = Mathf.Min(Fuel + amount, 100f);
         }
+        private void EngineAudio ()
+        {
+            if (Mathf.Abs (_tankInput.VerticalInput) < 0.1f && Mathf.Abs (_tankInput.HorizontalInput) < 0.1f)
+            {
+                if (movementAudio.clip == engineDriving)
+                {
+                    movementAudio.clip = engineIdling;
+                    movementAudio.pitch = Random.Range (originalPitch - pitchRange, originalPitch + pitchRange);
+                    movementAudio.Play ();
+                }
+            }
+            else
+            {
+                if (movementAudio.clip == engineIdling)
+                {
+                    movementAudio.clip = engineDriving;
+                    movementAudio.pitch = Random.Range(originalPitch - pitchRange, originalPitch + pitchRange);
+                    movementAudio.Play();
+                }
+            }
+        }
 
+        
         private void OnEnable ()
         {
             fuelSlider.gameObject.SetActive(true);
             Fuel = 100f;
             _rigidbody.isKinematic = false;
-            _velocityChange = Vector3.zero;
-            _angleChange = 0f;
 
             foreach (var particle in _particleSystems)
             {
@@ -51,7 +80,6 @@ namespace Tank
             _rigidbody.isKinematic = true;
             _rigidbody.velocity = Vector3.zero;
 
-            _velocityChange = Vector3.zero;
             foreach (var particle in _particleSystems)
             {
                 particle.Stop();
@@ -61,6 +89,7 @@ namespace Tank
         private void Update()
         {
             fuelSlider.value = Fuel;
+            EngineAudio();
         }
         
         private void FixedUpdate ()
@@ -71,7 +100,9 @@ namespace Tank
             }
 
             Fuel -= Time.deltaTime;
-
+            Fuel -= _tankInput.VerticalInput * Time.deltaTime;
+            Fuel -= _tankInput.HorizontalInput * 0.5f * Time.deltaTime;
+            
             Move ();
             Turn ();
 
@@ -80,17 +111,12 @@ namespace Tank
         
         private void Move ()
         {
-            Fuel -= _tankInput.VerticalInput * Time.deltaTime;
-            _rigidbody.velocity = Vector3.SmoothDamp(_rigidbody.velocity, transform.forward * _tankInput.VerticalInput * speed, ref _velocityChange, SmoothTime);
+            _rigidbody.velocity = transform.forward * _tankInput.VerticalInput * speed;
         }
 
         private void Turn ()
         {
-            Fuel -= _tankInput.HorizontalInput * 0.5f * Time.deltaTime;
-            
             var turn = _tankInput.HorizontalInput * turnSpeed * Time.deltaTime;
-
-            turn = Mathf.SmoothDampAngle(_rigidbody.rotation.y, turn, ref _angleChange, SmoothTime);
             
             var turnRotation = Quaternion.Euler (0f, turn, 0f);
             _rigidbody.MoveRotation (_rigidbody.rotation * turnRotation);

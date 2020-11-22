@@ -10477,6 +10477,10 @@ MonoBehaviour:
   speed: 12
   turnSpeed: 180
   fuelSlider: {fileID: 464020387375918578}
+  movementAudio: {fileID: 8261418}
+  engineIdling: {fileID: 8300000, guid: 4932ab25b84dd7649b80af68a9660ddc, type: 3}
+  engineDriving: {fileID: 8300000, guid: d7ca9fb5aa30155449192b23d7fb3336, type: 3}
+  pitchRange: 0.2
 --- !u!114 &11409376
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10494,6 +10498,7 @@ MonoBehaviour:
   fillImage: {fileID: 11404512}
   fullHealthColor: {r: 0, g: 1, b: 0, a: 1}
   zeroHealthColor: {r: 1, g: 0, b: 0, a: 1}
+  tankRender: {fileID: 151450}
   explosionPrefab: {fileID: 151086, guid: 6bc6d0dd8b8428e4ca316513f2cf13c6, type: 3}
 --- !u!114 &11488788
 MonoBehaviour:
@@ -10511,7 +10516,7 @@ MonoBehaviour:
   fireTransform: {fileID: 435794}
   shootingAudio: {fileID: 8268710}
   fireClip: {fileID: 8300000, guid: 672a9941361ad494a99fba36759eca80, type: 3}
-  launchForce: 15
+  launchForce: 20
 --- !u!114 &847041366786716659
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10538,11 +10543,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_BrainParameters:
     VectorObservationSize: 10
-    NumStackedVectorObservations: 2
+    NumStackedVectorObservations: 3
     VectorActionSize: 03000000
     VectorActionDescriptions: []
     VectorActionSpaceType: 1
-  m_Model: {fileID: 5022602860645237092, guid: a939870e41e7044b3beeb9c5566654ad, type: 3}
+  m_Model: {fileID: 0}
   m_InferenceDevice: 0
   m_BehaviorType: 0
   m_BehaviorName: TankBehaviour
@@ -10566,11 +10571,6 @@ MonoBehaviour:
     maxStep: 0
   hasUpgradedFromAgentParameters: 1
   MaxStep: 0
-  tankRenderGameObjects:
-  - {fileID: 151450}
-  - {fileID: 169526}
-  - {fileID: 126470}
-  - {fileID: 173936}
 --- !u!114 &1573870952
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10589,14 +10589,14 @@ MonoBehaviour:
   - HealthItem
   - FuelItem
   - GoldItem
-  m_RaysPerDirection: 5
+  m_RaysPerDirection: 4
   m_MaxRayDegrees: 60
   m_SphereCastRadius: 0.5
   m_RayLength: 50
   m_RayLayerMask:
     serializedVersion: 2
     m_Bits: 4294967291
-  m_ObservationStacks: 2
+  m_ObservationStacks: 1
   rayHitColor: {r: 1, g: 0, b: 0, a: 1}
   rayMissColor: {r: 1, g: 1, b: 1, a: 1}
   m_StartVerticalOffset: 0.5
@@ -10613,7 +10613,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3a5c9d521e5ef4759a8246a07d52221e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  DecisionPeriod: 5
+  DecisionPeriod: 3
   TakeActionsBetweenDecisions: 1
 --- !u!1 &173936
 GameObject:

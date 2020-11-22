@@ -10,6 +10,7 @@ public class GoldItem : Item
         if (agent != null)
         {
             agent.AddReward(0.2f);
+            Destroy(gameObject);
         }
     }
 }

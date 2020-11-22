@@ -1,5 +1,4 @@
-﻿using Complete;
-using Tank;
+﻿using Tank;
 using Unity.MLAgents;
 using Unity.MLAgents.Sensors;
 using UnityEngine;
@@ -14,13 +13,16 @@ public class TankAgent : Agent
 
     private SpawnPointProvider[] _spawnPointProviders;
 
+    private float horizontalInputVelocity;
+    private float verticalInputVelocity;
+    
     private void Awake()
     {
         _tankInput = GetComponent<TankInput>();
         _tankHealth = GetComponent<TankHealth>();
         _tankShooting = GetComponent<TankShooting>();
         _tankMovement = GetComponent<TankMovement>();
-
+        
         _spawnPointProviders = FindObjectsOfType<SpawnPointProvider>();
 
         _tankHealth.OnTankDead += OnTankDead;
@@ -29,8 +31,8 @@ public class TankAgent : Agent
 
     public override void Heuristic(float[] actionsOut)
     {
-        actionsOut[0] = Input.GetAxis("Horizontal");
-        actionsOut[1] = Input.GetAxis("Vertical");
+        actionsOut[0] = Input.GetAxisRaw("Horizontal");
+        actionsOut[1] = Input.GetAxisRaw("Vertical");
         actionsOut[2] = Input.GetButton("Fire1") ? 1 : 0;
     }
 
@@ -74,14 +76,24 @@ public class TankAgent : Agent
             _tankInput.ResetAllInputs();
             return;
         }
-
-        _tankInput.HorizontalInput = Mathf.Clamp(vectorAction[0], -1f, 1f);
-        _tankInput.VerticalInput = Mathf.Clamp(vectorAction[1], -1f, 1f);
+        
+        var horizontalInput = Mathf.Clamp(vectorAction[0], -1f, 1f);
+        var verticalInput = Mathf.Clamp(vectorAction[1], -1f, 1f);
+        
+        _tankInput.HorizontalInput = Mathf.SmoothDamp(_tankInput.HorizontalInput, horizontalInput,
+            ref horizontalInputVelocity, 0.05f);
+        
+        _tankInput.VerticalInput = Mathf.SmoothDamp(_tankInput.VerticalInput, verticalInput,
+            ref verticalInputVelocity, 0.05f);
+        
         _tankInput.FireInput = vectorAction[2] >= 1f;
     }
 
     private void OnTankDead()
     {
+        verticalInputVelocity = 0f;
+        horizontalInputVelocity = 0f;
+        
         _tankInput.ResetAllInputs();
         SetActiveTankComponents(false);
         EndEpisode();
@@ -99,13 +111,13 @@ public class TankAgent : Agent
     {
         sensor.AddObservation(_tankHealth.CurrentHealth * 0.01f);
         sensor.AddObservation(_tankMovement.Fuel * 0.01f);
-
+        
         sensor.AddObservation(Mathf.Clamp01((Time.time - _tankShooting.LastFireTime) / _tankShooting.TimeBetFire));
 
         if (_tankShooting.LastFiredShell != null)
         {
             sensor.AddObservation(1f);
-            sensor.AddObservation(transform.InverseTransformDirection(_tankShooting.LastFiredShell.velocity) / 15f);
+            sensor.AddObservation(transform.InverseTransformDirection(_tankShooting.LastFiredShell.velocity) / 20f);
             sensor.AddObservation(transform.InverseTransformPoint(_tankShooting.LastFiredShell.position) / 25f);
         }
         else
@@ -118,6 +130,9 @@ public class TankAgent : Agent
 
     public override void OnEpisodeBegin()
     {
+        verticalInputVelocity = 0f;
+        horizontalInputVelocity = 0f;
+        
         var spawnPointProvider = _spawnPointProviders[Random.Range(0, _spawnPointProviders.Length)];
         var spawnPosition = spawnPointProvider.GetRandomSpawnPoint(3f);
 
