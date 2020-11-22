@@ -12,6 +12,10 @@ namespace Complete
         public Color fullHealthColor = Color.green;
         public Color zeroHealthColor = Color.red;
 
+        public GameObject tankRender;
+        private Collider _collider;
+
+        
         public GameObject explosionPrefab;
 
         public bool IsDead { get; private set; }
@@ -29,6 +33,8 @@ namespace Complete
 
         private void Awake()
         {
+            _collider = GetComponent<Collider>();
+
             _explosionParticles = Instantiate(explosionPrefab).GetComponent<ParticleSystem>();
             _explosionAudio = _explosionParticles.GetComponent<AudioSource>();
             _explosionParticles.gameObject.SetActive(false);
@@ -38,9 +44,12 @@ namespace Complete
         {
             CurrentHealth = maxHealth;
             IsDead = false;
+            tankRender.SetActive(true);
+            _collider.enabled = true;
             SetHealthUI();
+            healthSlider.gameObject.SetActive(true);
         }
-
+        
 
         public float TakeDamage(float damage)
         {
@@ -74,7 +83,11 @@ namespace Complete
         public void Death()
         {
             IsDead = true;
+            tankRender.SetActive(false);
+            _collider.enabled = false;
             
+            healthSlider.gameObject.SetActive(false);
+
             _explosionParticles.transform.position = transform.position;
             _explosionParticles.gameObject.SetActive(true);
             

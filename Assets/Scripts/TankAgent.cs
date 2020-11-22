@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using Complete;
+﻿using Complete;
 using Tank;
 using Unity.MLAgents;
 using Unity.MLAgents.Sensors;
@@ -13,22 +12,17 @@ public class TankAgent : Agent
     private TankMovement _tankMovement;
     private TankShooting _tankShooting;
 
-    private Collider _collider;
-
     private SpawnPointProvider[] _spawnPointProviders;
 
-    public GameObject[] tankRenderGameObjects;
-    
     private void Awake()
     {
         _tankInput = GetComponent<TankInput>();
         _tankHealth = GetComponent<TankHealth>();
         _tankShooting = GetComponent<TankShooting>();
         _tankMovement = GetComponent<TankMovement>();
-        _collider = GetComponent<Collider>();
-        
+
         _spawnPointProviders = FindObjectsOfType<SpawnPointProvider>();
-        
+
         _tankHealth.OnTankDead += OnTankDead;
         _tankShooting.OnHitTargets += OnHitTargets;
     }
@@ -71,13 +65,8 @@ public class TankAgent : Agent
         _tankHealth.enabled = active;
         _tankMovement.enabled = active;
         _tankShooting.enabled = active;
-        _collider.enabled = active;
-        foreach (var tankRenderGameObject in tankRenderGameObjects)
-        {
-            tankRenderGameObject.SetActive(active);
-        }
     }
-    
+
     public override void OnActionReceived(float[] vectorAction)
     {
         if (_tankHealth.IsDead)
@@ -96,9 +85,8 @@ public class TankAgent : Agent
         _tankInput.ResetAllInputs();
         SetActiveTankComponents(false);
         EndEpisode();
-
     }
-    
+
     private void FixedUpdate()
     {
         if (!_tankHealth.IsDead && _tankMovement.Fuel <= 0f)
@@ -113,7 +101,7 @@ public class TankAgent : Agent
         sensor.AddObservation(_tankMovement.Fuel * 0.01f);
 
         sensor.AddObservation(Mathf.Clamp01((Time.time - _tankShooting.LastFireTime) / _tankShooting.TimeBetFire));
-        
+
         if (_tankShooting.LastFiredShell != null)
         {
             sensor.AddObservation(1f);
@@ -142,13 +130,15 @@ public class TankAgent : Agent
 
     private void OnTriggerEnter(Collider other)
     {
-        if (!_tankHealth.IsDead)
+        if (_tankHealth.IsDead)
         {
-            var item = other.GetComponent<Item>();
-            if (item != null)
-            {
-                item.Use(gameObject);
-            }
+            return;
+        }
+
+        var item = other.GetComponent<Item>();
+        if (item != null)
+        {
+            item.Use(gameObject);
         }
     }
 }

@@ -1,5 +1,4 @@
-﻿using Unity.MLAgents.Sensors;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 
 namespace Tank
@@ -18,7 +17,7 @@ namespace Tank
 
         private Vector3 _velocityChange;
         private float _angleChange;
-
+        private const float SmoothTime = 0.05f;
 
         private void Awake ()
         {
@@ -34,6 +33,7 @@ namespace Tank
 
         private void OnEnable ()
         {
+            fuelSlider.gameObject.SetActive(true);
             Fuel = 100f;
             _rigidbody.isKinematic = false;
             _velocityChange = Vector3.zero;
@@ -47,6 +47,7 @@ namespace Tank
 
         private void OnDisable ()
         {
+            fuelSlider.gameObject.SetActive(false);
             _rigidbody.isKinematic = true;
             _rigidbody.velocity = Vector3.zero;
 
@@ -80,7 +81,7 @@ namespace Tank
         private void Move ()
         {
             Fuel -= _tankInput.VerticalInput * Time.deltaTime;
-            _rigidbody.velocity = Vector3.SmoothDamp(_rigidbody.velocity, transform.forward * _tankInput.VerticalInput * speed, ref _velocityChange, 0.05f);
+            _rigidbody.velocity = Vector3.SmoothDamp(_rigidbody.velocity, transform.forward * _tankInput.VerticalInput * speed, ref _velocityChange, SmoothTime);
         }
 
         private void Turn ()
@@ -89,7 +90,7 @@ namespace Tank
             
             var turn = _tankInput.HorizontalInput * turnSpeed * Time.deltaTime;
 
-            turn = Mathf.SmoothDampAngle(_rigidbody.rotation.y, turn, ref _angleChange, 0.05f);
+            turn = Mathf.SmoothDampAngle(_rigidbody.rotation.y, turn, ref _angleChange, SmoothTime);
             
             var turnRotation = Quaternion.Euler (0f, turn, 0f);
             _rigidbody.MoveRotation (_rigidbody.rotation * turnRotation);
