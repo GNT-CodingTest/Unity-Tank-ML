@@ -34,7 +34,7 @@ public class TankAgent : Agent
         actionsOut[2] = Input.GetButton("Fire1") ? 1 : 0;
     }
 
-    public void OnHitTargets(TankHitInfo[] tankHitInfos)
+    private void OnHitTargets(TankHitInfo[] tankHitInfos)
     {
         if (tankHitInfos.Length <= 0 || tankHitInfos.Length == 1 && tankHitInfos[0].Target == gameObject)
         {
