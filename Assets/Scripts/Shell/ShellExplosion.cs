@@ -1,91 +1,88 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
+using Complete;
 using UnityEngine;
 
-namespace Complete
+public class ShellExplosion : MonoBehaviour
 {
-    public class ShellExplosion : MonoBehaviour
+    public LayerMask m_TankMask; // Used to filter what the explosion affects, this should be set to "Players".
+    public ParticleSystem m_ExplosionParticles; // Reference to the particles that will play on explosion.
+    public AudioSource m_ExplosionAudio; // Reference to the audio that will play on explosion.
+    public float m_MaxDamage = 100f; // The amount of damage done if the explosion is centred on a tank.
+    public float m_ExplosionForce = 1000f; // The amount of force added to a tank at the centre of the explosion.
+
+    public float
+        explosionRadius = 5f; // The maximum distance away from the explosion tanks can be and are still affected.
+
+    public event Action<TankHitInfo[]> OnHitTargets = info => { };
+
+    public float maxLifeTime = 2f;
+
+    private void Start()
     {
-        public LayerMask m_TankMask; // Used to filter what the explosion affects, this should be set to "Players".
-        public ParticleSystem m_ExplosionParticles; // Reference to the particles that will play on explosion.
-        public AudioSource m_ExplosionAudio; // Reference to the audio that will play on explosion.
-        public float m_MaxDamage = 100f; // The amount of damage done if the explosion is centred on a tank.
-        public float m_ExplosionForce = 1000f; // The amount of force added to a tank at the centre of the explosion.
+        Destroy(gameObject, maxLifeTime);
+    }
 
-        public float
-            explosionRadius = 5f; // The maximum distance away from the explosion tanks can be and are still affected.
+    private void OnTriggerEnter(Collider other)
+    {
+        var hitInfos = new List<TankHitInfo>();
 
-        public event Action<TankHitInfo[]> OnHitTargets = info => { };
-        
-        public float maxLifeTime = 2f;
+        var hitColliders = Physics.OverlapSphere(transform.position, explosionRadius, m_TankMask);
 
-        private void Start()
+        foreach (var hitCollider in hitColliders)
         {
-            Destroy(gameObject, maxLifeTime);
-        }
-
-        private void OnTriggerEnter(Collider other)
-        {
-            var hitInfos = new List<TankHitInfo>();
-            
-            var hitColliders = Physics.OverlapSphere(transform.position, explosionRadius, m_TankMask);
-            
-            foreach (var hitCollider in hitColliders)
+            var targetRigidbody = hitCollider.GetComponent<Rigidbody>();
+            if (targetRigidbody == null)
             {
-                var targetRigidbody = hitCollider.GetComponent<Rigidbody>();
-                if (targetRigidbody == null)
-                {
-                    continue;
-                }
-                
-                targetRigidbody.AddExplosionForce(m_ExplosionForce, transform.position, explosionRadius);
-
-                var tankHealth = hitCollider.GetComponent<TankHealth>();
-
-                if (tankHealth == null || tankHealth.IsDead)
-                {
-                    continue;
-                }
-                
-                var damage = CalculateDamage(targetRigidbody.position);
-                var damageApplied = tankHealth.TakeDamage(damage);
-
-                var hitInfo = new TankHitInfo
-                {
-                    Target = tankHealth.gameObject,
-                    AppliedDamage = damageApplied,
-                    TargetKilled = tankHealth.IsDead
-                };
-
-                hitInfos.Add(hitInfo);
+                continue;
             }
 
-            OnHitTargets(hitInfos.ToArray());
-            
-            m_ExplosionParticles.transform.parent = null;
-            m_ExplosionParticles.Play();
-            m_ExplosionAudio.Play();
+            targetRigidbody.AddExplosionForce(m_ExplosionForce, transform.position, explosionRadius);
 
-            var mainModule = m_ExplosionParticles.main;
-            Destroy(m_ExplosionParticles.gameObject, mainModule.duration);
-            Destroy(gameObject);
+            var tankHealth = hitCollider.GetComponent<TankHealth>();
+
+            if (tankHealth == null || tankHealth.IsDead)
+            {
+                continue;
+            }
+
+            var damage = CalculateDamage(targetRigidbody.position);
+            var damageApplied = tankHealth.TakeDamage(damage);
+
+            var hitInfo = new TankHitInfo
+            {
+                Target = tankHealth.gameObject,
+                AppliedDamage = damageApplied,
+                TargetKilled = tankHealth.IsDead
+            };
+
+            hitInfos.Add(hitInfo);
         }
 
+        OnHitTargets(hitInfos.ToArray());
 
-        private float CalculateDamage(Vector3 targetPosition)
-        {
-            var explosionToTarget = targetPosition - transform.position;
+        m_ExplosionParticles.transform.parent = null;
+        m_ExplosionParticles.Play();
+        m_ExplosionAudio.Play();
 
-            var explosionDistance = explosionToTarget.magnitude;
+        var mainModule = m_ExplosionParticles.main;
+        Destroy(m_ExplosionParticles.gameObject, mainModule.duration);
+        Destroy(gameObject);
+    }
 
-            var relativeDistance = (explosionRadius - explosionDistance) / explosionRadius;
 
-            var damage = relativeDistance * m_MaxDamage;
+    private float CalculateDamage(Vector3 targetPosition)
+    {
+        var explosionToTarget = targetPosition - transform.position;
 
-            damage = Mathf.Max(0f, damage);
+        var explosionDistance = explosionToTarget.magnitude;
 
-            return damage;
-        }
+        var relativeDistance = (explosionRadius - explosionDistance) / explosionRadius;
+
+        var damage = relativeDistance * m_MaxDamage;
+
+        damage = Mathf.Max(0f, damage);
+
+        return damage;
     }
 }
