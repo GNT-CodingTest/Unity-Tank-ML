@@ -14,7 +14,7 @@ public class TankShooting : MonoBehaviour
     public event Action<TankHitInfo[]> OnHitTargets;
 
     public float LastFireTime { get; private set; }
-    public readonly float TimeBetFire = 2f;
+    public const float TimeBetFire = 2f;
 
     public Rigidbody LastFiredShell { get; private set; }
 

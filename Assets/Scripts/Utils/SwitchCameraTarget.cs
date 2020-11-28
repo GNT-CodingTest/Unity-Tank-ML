@@ -17,7 +17,7 @@ public class SwitchCameraTarget : MonoBehaviour
         {
             return;
         }
-        
+
         _agents = FindObjectsOfType<Agent>();
         virtualCamera.LookAt = _agents[0].transform;
     }
@@ -27,8 +27,9 @@ public class SwitchCameraTarget : MonoBehaviour
         if (Time.time >= _lastChangeTime + TimeBetChange)
         {
             _lastChangeTime = Time.time + TimeBetChange;
-            
-            var agentWithMaxReward = _agents.Aggregate((agent1, agent2) => agent1.GetCumulativeReward() > agent2.GetCumulativeReward() ? agent1 : agent2);
+
+            var agentWithMaxReward = _agents.Aggregate((agent1, agent2) =>
+                agent1.GetCumulativeReward() > agent2.GetCumulativeReward() ? agent1 : agent2);
             virtualCamera.LookAt = agentWithMaxReward.transform;
         }
     }

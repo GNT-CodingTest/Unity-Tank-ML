@@ -3,7 +3,7 @@ using UnityEngine.Events;
 
 public abstract class Item : MonoBehaviour
 {
-    private float _rotateSpeed = 180f;
+    public float rotateSpeed = 180f;
     public abstract void Use(GameObject target);
     
     public UnityEvent<Item> onItemDestroyed;
@@ -15,6 +15,6 @@ public abstract class Item : MonoBehaviour
 
     private void FixedUpdate()
     {
-        transform.Rotate(0f, _rotateSpeed * Time.deltaTime, 0f);
+        transform.Rotate(0f, rotateSpeed * Time.deltaTime, 0f);
     }
 }

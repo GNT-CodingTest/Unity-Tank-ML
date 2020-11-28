@@ -14,14 +14,14 @@ public class TankAgent : Agent
 
     private float _horizontalInputVelocity;
     private float _verticalInputVelocity;
-    
+
     private void Awake()
     {
         _tankInput = GetComponent<TankInput>();
         _tankHealth = GetComponent<TankHealth>();
         _tankShooting = GetComponent<TankShooting>();
         _tankMovement = GetComponent<TankMovement>();
-        
+
         _spawnPointProviders = FindObjectsOfType<SpawnPointProvider>();
 
         _tankHealth.OnTankDead += OnTankDead;
@@ -39,7 +39,6 @@ public class TankAgent : Agent
     {
         if (tankHitInfos.Length <= 0 || tankHitInfos.Length == 1 && tankHitInfos[0].Target == gameObject)
         {
-            // 총알 낭비
             AddReward(-0.1f);
         }
 
@@ -75,16 +74,16 @@ public class TankAgent : Agent
             _tankInput.ResetAllInputs();
             return;
         }
-        
+
         var horizontalInput = Mathf.Clamp(vectorAction[0], -1f, 1f);
         var verticalInput = Mathf.Clamp(vectorAction[1], -1f, 1f);
-        
+
         _tankInput.HorizontalInput = Mathf.SmoothDamp(_tankInput.HorizontalInput, horizontalInput,
             ref _horizontalInputVelocity, 0.05f);
-        
+
         _tankInput.VerticalInput = Mathf.SmoothDamp(_tankInput.VerticalInput, verticalInput,
             ref _verticalInputVelocity, 0.05f);
-        
+
         _tankInput.FireInput = vectorAction[2] >= 1f;
     }
 
@@ -92,7 +91,7 @@ public class TankAgent : Agent
     {
         _verticalInputVelocity = 0f;
         _horizontalInputVelocity = 0f;
-        
+
         _tankInput.ResetAllInputs();
         SetActiveTankComponents(false);
         EndEpisode();
@@ -110,8 +109,8 @@ public class TankAgent : Agent
     {
         sensor.AddObservation(_tankHealth.CurrentHealth * 0.01f);
         sensor.AddObservation(_tankMovement.Fuel * 0.01f);
-        
-        sensor.AddObservation(Mathf.Clamp01((Time.time - _tankShooting.LastFireTime) / _tankShooting.TimeBetFire));
+
+        sensor.AddObservation(Mathf.Clamp01((Time.time - _tankShooting.LastFireTime) / TankShooting.TimeBetFire));
 
         if (_tankShooting.LastFiredShell != null)
         {
@@ -131,7 +130,7 @@ public class TankAgent : Agent
     {
         _verticalInputVelocity = 0f;
         _horizontalInputVelocity = 0f;
-        
+
         var spawnPointProvider = _spawnPointProviders[Random.Range(0, _spawnPointProviders.Length)];
         var spawnPosition = spawnPointProvider.GetRandomSpawnPoint(3f);
 
